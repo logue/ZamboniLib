@@ -2,20 +2,28 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>ZamboniLib</AssemblyName>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <Copyright>Copyright © 2021</Copyright>
     <Description>Library for working with PSO2 ICE files. Logic primarily by Agrajag/Agra the Jagged and uploaded with his permission, despite the Jetbrains headers (Source was lost at some point). Ooz-sys by PizzaCrust (Might be slightly adjusted for this, don't remember).
-
 For various reasons, the code isn't particularly lovely here, but usable.</Description>
-    <GenerateDocumentationFile>False</GenerateDocumentationFile>
+    <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>ZamboniLib</PackageId>
     <PackageProjectUrl>https://github.com/Shadowth117/ZamboniLib</PackageProjectUrl>
-    <PackageTags>PSO2NGS</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>PSO2NGS;PSO2;Phantasy Star Online2;Phantasy Star Online2 New Genenesis</PackageTags>
     <Product>ZamboniCore</Product>
+    <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/Shadowth117/ZamboniLib</RepositoryUrl>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
     <RootNamespace>ZamboniLib</RootNamespace>
-    <RuntimeIdentifiers>win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
-    <TargetFrameworks>net48;net5.0-windows10.0.19041.0</TargetFrameworks>
-    <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
+    <TargetFramework>net5.0</TargetFramework>
+    <Version>1.1.0</Version>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
 </Project>

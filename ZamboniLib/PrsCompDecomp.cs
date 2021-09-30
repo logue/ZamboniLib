@@ -5,6 +5,7 @@
 // Assembly location: D:\Downloads\zamboni_ngs (3)\zamboni.exe
 
 using psu_generic_parser;
+using System;
 
 namespace ZamboniLib
 {
@@ -45,51 +46,52 @@ namespace ZamboniLib
             numCtrlBytes = 1;
             currDecompPos = 0;
             int num1 = 0;
-            //try
-            //{
-            while (num1 < outCount && currDecompPos < input.Length)
+            try
             {
-                while (getCtrlBit())
-                    numArray[num1++] = decompBuffer[currDecompPos++];
-                int num2;
-                int num3;
-                if (getCtrlBit())
+                while (num1 < outCount && currDecompPos < input.Length)
                 {
-                    if (currDecompPos < decompBuffer.Length)
+                    while (getCtrlBit())
+                        numArray[num1++] = decompBuffer[currDecompPos++];
+                    int num2;
+                    int num3;
+                    if (getCtrlBit())
                     {
-                        int num4 = decompBuffer[currDecompPos++];
-                        int num5 = decompBuffer[currDecompPos++];
-                        int num6 = num4;
-                        int num7 = num5;
-                        if (num6 != 0 || num7 != 0)
+                        if (currDecompPos < decompBuffer.Length)
                         {
-                            num2 = (num7 << 5) + (num6 >> 3) - 8192;
-                            int num8 = num6 & 7;
-                            num3 = num8 != 0 ? num8 + 2 : decompBuffer[currDecompPos++] + 10;
+                            int num4 = decompBuffer[currDecompPos++];
+                            int num5 = decompBuffer[currDecompPos++];
+                            int num6 = num4;
+                            int num7 = num5;
+                            if (num6 != 0 || num7 != 0)
+                            {
+                                num2 = (num7 << 5) + (num6 >> 3) - 8192;
+                                int num8 = num6 & 7;
+                                num3 = num8 != 0 ? num8 + 2 : decompBuffer[currDecompPos++] + 10;
+                            }
+                            else
+                                break;
                         }
                         else
                             break;
                     }
                     else
-                        break;
+                    {
+                        num3 = 2;
+                        if (getCtrlBit())
+                            num3 += 2;
+                        if (getCtrlBit())
+                            ++num3;
+                        num2 = decompBuffer[currDecompPos++] - 256;
+                    }
+                    int num9 = num2 + num1;
+                    for (int index = 0; index < num3 && num1 < numArray.Length; ++index)
+                        numArray[num1++] = numArray[num9++];
                 }
-                else
-                {
-                    num3 = 2;
-                    if (getCtrlBit())
-                        num3 += 2;
-                    if (getCtrlBit())
-                        ++num3;
-                    num2 = decompBuffer[currDecompPos++] - 256;
-                }
-                int num9 = num2 + num1;
-                for (int index = 0; index < num3 && num1 < numArray.Length; ++index)
-                    numArray[num1++] = numArray[num9++];
             }
-            //}
-            // catch (Exception ex)
-            // {
-            //}
+            catch (Exception ex)
+            {
+                throw new ZamboniException(ex.ToString());
+            }
             return numArray;
         }
 

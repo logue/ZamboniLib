@@ -97,7 +97,7 @@ namespace ZamboniLib.IceFileFormats
 
         public IceV5File(string headerFilename, string group1, string group2)
         {
-            throw new NotSupportedException(headerFilename + "is not supported format.");
+            throw new ZamboniException(headerFilename + " is not supported format.");
         }
 
         private uint GetKey(byte[] keys, uint temp_key)
@@ -153,18 +153,23 @@ namespace ZamboniLib.IceFileFormats
             uint num = CalcBlowfishKeys(numArray1, key1);
             uint key2 = GetKey(numArray1, num);
             uint key3 = ReverseBytes(num << decryptionHeaders[iceType - 5].Group2Rol | num >> 32 - decryptionHeaders[iceType - 5].Group2Rol);
+
             uint groupOneTempKey = num << decryptionHeaders[iceType - 5].HeaderRol | num >> 32 - decryptionHeaders[iceType - 5].HeaderRol;
             uint groupTwoTempKey = key2 << decryptionHeaders[iceType - 5].HeaderRol | key2 >> 32 - decryptionHeaders[iceType - 5].HeaderRol;
+
             byte[] decryptedHeaderData = new BlewFish(key3).decryptBlock(block);
             groupHeaders = ReadHeaders(decryptedHeaderData);
             inFile.Seek(352L, SeekOrigin.Begin);
+
             byte[][] numArray3 = new byte[3][] { new byte[352], new byte[0], new byte[0] };
             Array.Copy(numArray2, numArray3[0], 304);
             Array.Copy(decryptedHeaderData, 0, numArray3[0], 304, 48);
+
             if (groupHeaders[0].decompSize > 0U)
                 numArray3[1] = ExtractGroup(groupHeaders[0], openReader, true, num, key2, false);
             if (groupHeaders[1].decompSize > 0U)
                 numArray3[2] = ExtractGroup(groupHeaders[1], openReader, true, groupOneTempKey, groupTwoTempKey, false);
+
             return numArray3;
         }
 
