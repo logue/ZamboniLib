@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace zamboni
+namespace ZamboniLib
 {
     // CRC32 Code deriving from HashAlgorithm
-    using System;
     using System.Security.Cryptography;
 
     public class Crc32 : HashAlgorithm
@@ -91,11 +85,11 @@ namespace zamboni
         }
         protected override byte[] HashFinal()
         {
-            this.HashValue = new byte[] { (byte)((crcValue >> 24) & 0xff),
+            HashValue = new byte[] { (byte)((crcValue >> 24) & 0xff),
                                       (byte)((crcValue >> 16) & 0xff),
                                       (byte)((crcValue >> 8) & 0xff),
                                       (byte)(crcValue & 0xff) };
-            return this.HashValue;
+            return HashValue;
         }
         public uint CrcValue
         {
