@@ -84,7 +84,7 @@ namespace psu_generic_parser
             return offsetDictionary[currentVal];
         }
 
-        private Dictionary<byte, Tuple<List<int>, int>> BuildOffsetDictionary(
+        private static Dictionary<byte, Tuple<List<int>, int>> BuildOffsetDictionary(
           byte[] toCompress)
         {
             Dictionary<byte, Tuple<List<int>, int>> dictionary = new Dictionary<byte, Tuple<List<int>, int>>();

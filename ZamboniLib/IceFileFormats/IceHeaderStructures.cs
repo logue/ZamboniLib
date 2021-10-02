@@ -118,6 +118,7 @@ namespace ZamboniLib.IceFileFormats
                 string ext = Path.GetExtension(fileName).Replace(".", "");
                 extension = Encoding.UTF8.GetBytes(ext);
                 Array.Resize(ref extension, 4);
+
                 dataSize = givenFileSize;
 
                 // Properly write filename length

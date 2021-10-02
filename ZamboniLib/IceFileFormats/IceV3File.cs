@@ -108,7 +108,7 @@ namespace ZamboniLib.IceFileFormats
             return numArray1;
         }
 
-        private void ReadGroupInfoGroup(BinaryReader openReader, GroupHeader grp)
+        private static void ReadGroupInfoGroup(BinaryReader openReader, GroupHeader grp)
         {
             grp.decompSize = openReader.ReadUInt32();
             grp.compSize = openReader.ReadUInt32();
@@ -116,7 +116,7 @@ namespace ZamboniLib.IceFileFormats
             grp.CRC = openReader.ReadUInt32();
         }
 
-        private uint GetKey(StGroup group)
+        private static uint GetKey(StGroup group)
         {
             return group.group1.decompSize ^ group.group2.decompSize ^ group.group2Size ^ group.key ^ 0xC8D7469A;
         }

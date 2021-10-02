@@ -301,7 +301,7 @@ namespace ZamboniLib
             return toReturn;
         }
 
-        public uint[] encrypt(uint left, uint right)
+        public uint[] Encrypt(uint left, uint right)
         {
             uint[] toReturn = { left, right };
             for (uint i = 0; i < 16; i += 2)
@@ -316,7 +316,7 @@ namespace ZamboniLib
             return toReturn;
         }
 
-        public uint[] decrypt(uint[] source)
+        public uint[] Decrypt(uint[] source)
         {
             uint[] toReturn = { source[0], source[1] };
             uint left = source[0];
@@ -333,7 +333,7 @@ namespace ZamboniLib
             return toReturn;
         }
 
-        public uint[] decrypt(uint left, uint right)
+        public uint[] Decrypt(uint left, uint right)
         {
             uint[] toReturn = { left, right };
             for (uint i = 17; i > 1; i -= 2)
@@ -357,7 +357,7 @@ namespace ZamboniLib
             {
                 uint left = BitConverter.ToUInt32(block, i);
                 uint right = BitConverter.ToUInt32(block, i + 4);
-                uint[] temp = decrypt(left, right);
+                uint[] temp = Decrypt(left, right);
                 Array.Copy(BitConverter.GetBytes(temp[0]), 0, toReturn, i, 4); //BitConverter.GetBytes(temp[0]).CopyTo(decryptedFiles, i);
                 Array.Copy(BitConverter.GetBytes(temp[1]), 0, toReturn, i + 4, 4);
             }
@@ -366,7 +366,7 @@ namespace ZamboniLib
             return toReturn;
         }
 
-        public byte[] encryptBlock(byte[] block)
+        public byte[] EncryptBlock(byte[] block)
         {
             byte[] toReturn = new byte[block.Length];
             int size = block.Length;
@@ -375,7 +375,7 @@ namespace ZamboniLib
             {
                 uint left = BitConverter.ToUInt32(block, i);
                 uint right = BitConverter.ToUInt32(block, i + 4);
-                uint[] temp = encrypt(left, right);
+                uint[] temp = Encrypt(left, right);
                 Array.Copy(BitConverter.GetBytes(temp[0]), 0, toReturn, i, 4); //BitConverter.GetBytes(temp[0]).CopyTo(decryptedFiles, i);
                 Array.Copy(BitConverter.GetBytes(temp[1]), 0, toReturn, i + 4, 4);
             }
@@ -418,7 +418,7 @@ namespace ZamboniLib
             }
         }
 
-        public uint ReverseBytes(uint x)
+        public static uint ReverseBytes(uint x)
         {
             // swap adjacent 16-bit blocks
             x = (x >> 16) | (x << 16);

@@ -24,8 +24,33 @@ namespace ZamboniLib.IceFileFormats
 
         protected abstract int SecondPassThreshold { get; }
 
+        /// <summary>
+        /// Load Ice file.
+        /// </summary>
+        /// <param name="fileName">path of icefile</param>
+        /// <returns></returns>
+        public static IceFile LoadIceFile(string fileName)
+        {
+            using (FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read))
+            {
+                return LoadIceFile(fs);
+            }
+        }
+
+        /// <summary>
+        /// Load Ice file by stream
+        /// </summary>
+        /// <param name="fileName">path of icefile</param>
+        /// <returns></returns>
         public static IceFile LoadIceFile(Stream inStream)
         {
+            byte[] buffer = new byte[inStream.Length];
+
+            if (buffer.Length <= 127 || buffer[0] != 73 || buffer[1] != 67 || buffer[2] != 69 || buffer[3] != 0)
+            {
+                throw new ZamboniException("Not an Ice file.");
+            }
+
             inStream.Seek(8L, SeekOrigin.Begin);
             int num = inStream.ReadByte();
             inStream.Seek(0L, SeekOrigin.Begin);
@@ -57,6 +82,11 @@ namespace ZamboniLib.IceFileFormats
                     throw new ZamboniException("Invalid ICE version: " + num.ToString());
             }
             inStream.Dispose();
+
+            if (iceFile == null)
+            {
+                throw new ZamboniException("Could not parse ice file.");
+            }
             return iceFile;
         }
 
@@ -66,7 +96,7 @@ namespace ZamboniLib.IceFileFormats
             return Encoding.ASCII.GetString(fileToWrite, 0x40, int32).TrimEnd(new char[1]);
         }
 
-        protected byte[][] SplitGroup(byte[] groupToSplit, int fileCount)
+        protected static byte[][] SplitGroup(byte[] groupToSplit, int fileCount)
         {
             byte[][] numArray = new byte[fileCount][];
             int sourceIndex = 0;
@@ -80,7 +110,7 @@ namespace ZamboniLib.IceFileFormats
             return numArray;
         }
 
-        protected byte[] CombineGroup(byte[][] filesToJoin, bool headerLess = true)
+        protected static byte[] CombineGroup(byte[][] filesToJoin, bool headerLess = true)
         {
             List<byte> outBytes = new List<byte>();
             for (int i = 0; i < filesToJoin.Length; i++)
@@ -102,25 +132,25 @@ namespace ZamboniLib.IceFileFormats
             {
                 Array.Copy(buffer, 0, block1, 0, buffer.Length);
             }
-            byte[] block2 = new BlewFish(ReverseBytes(key1)).decryptBlock(block1);
+            byte[] block2 = new BlewFish(ReverseBytes(key1)).DecryptBlock(block1);
             byte[] numArray = block2;
             if (block2.Length <= SecondPassThreshold && v3Decrypt == false)
-                numArray = new BlewFish(ReverseBytes(key2)).decryptBlock(block2);
+                numArray = new BlewFish(ReverseBytes(key2)).DecryptBlock(block2);
             return numArray;
         }
 
-        public uint ReverseBytes(uint x)
+        public static uint ReverseBytes(uint x)
         {
             x = x >> 16 | x << 16;
             return (x & 4278255360U) >> 8 | (uint)(((int)x & 16711935) << 8);
         }
 
-        protected GroupHeader[] ReadHeaders(byte[] decryptedHeaderData)
+        protected static GroupHeader[] ReadHeaders(byte[] decryptedHeaderData)
         {
             GroupHeader[] groupHeaderArray = new GroupHeader[2]
             {
-        new GroupHeader(),
-        null
+                new GroupHeader(),
+                null
             };
             groupHeaderArray[0].decompSize = BitConverter.ToUInt32(decryptedHeaderData, 0);
             groupHeaderArray[0].compSize = BitConverter.ToUInt32(decryptedHeaderData, 4);
@@ -145,10 +175,12 @@ namespace ZamboniLib.IceFileFormats
         {
             byte[] buffer = openReader.ReadBytes((int)header.GetStoredSize());
             byte[] inData = !encrypt ? buffer : DecryptGroup(buffer, groupOneTempKey, groupTwoTempKey, v3Decrypt);
-            return header.compSize <= 0U ? inData : (!ngsMode ? DecompressGroup(inData, header.decompSize) : DecompressGroupNgs(inData, header.decompSize));
+            return header.compSize <= 0U ? inData :
+                (!ngsMode ? DecompressGroup(inData, header.decompSize) :
+                DecompressGroupNgs(inData, header.decompSize));
         }
 
-        protected byte[] DecompressGroup(byte[] inData, uint bufferLength)
+        protected static byte[] DecompressGroup(byte[] inData, uint bufferLength)
         {
             byte[] input = new byte[inData.Length];
             Array.Copy(inData, input, input.Length);
@@ -157,9 +189,9 @@ namespace ZamboniLib.IceFileFormats
             return PrsCompDecomp.Decompress(input, bufferLength);
         }
 
-        protected byte[] DecompressGroupNgs(byte[] inData, uint bufferLength) => Oodle.Decompress(inData, bufferLength);
+        protected static byte[] DecompressGroupNgs(byte[] inData, uint bufferLength) => Oodle.Decompress(inData, bufferLength);
 
-        protected byte[] GetCompressedContents(byte[] buffer, bool compress)
+        protected static byte[] GetCompressedContents(byte[] buffer, bool compress)
         {
             if (!compress || (uint)buffer.Length <= 0U)
                 return buffer;
@@ -175,8 +207,8 @@ namespace ZamboniLib.IceFileFormats
                 return buffer;
             byte[] block = buffer;
             if (buffer.Length <= SecondPassThreshold)
-                block = new BlewFish(ReverseBytes(key2)).encryptBlock(buffer);
-            byte[] data_block = new BlewFish(ReverseBytes(key1)).encryptBlock(block);
+                block = new BlewFish(ReverseBytes(key2)).EncryptBlock(buffer);
+            byte[] data_block = new BlewFish(ReverseBytes(key1)).EncryptBlock(block);
             return FloatageFish.DecryptBlock(data_block, (uint)data_block.Length, key1);
         }
 

@@ -56,7 +56,7 @@ namespace ZamboniLib.IceFileFormats
                 inFile.Seek(0L, SeekOrigin.Begin);
                 byte[] numArray3 = openReader.ReadBytes(288);
                 byte[] block = openReader.ReadBytes(48);
-                decryptedHeaderData = new BlewFish(blowfishKeys.groupHeadersKey).decryptBlock(block);
+                decryptedHeaderData = new BlewFish(blowfishKeys.groupHeadersKey).DecryptBlock(block);
                 numArray1[0] = new byte[336];
                 Array.Copy(numArray3, numArray1[0], 288);
                 Array.Copy(decryptedHeaderData, 0, numArray1[0], 288, decryptedHeaderData.Length);
@@ -98,9 +98,11 @@ namespace ZamboniLib.IceFileFormats
             }
 #endif
             if (groupHeaderArray[0].decompSize > 0U)
-                numArray1[1] = ExtractGroup(groupHeaderArray[0], openReader, (uint)(num1 & 1) > 0U, blowfishKeys.GroupOneBlowfish[0], blowfishKeys.GroupOneBlowfish[1], num1 == 8 || num1 == 9);
+                numArray1[1] = ExtractGroup(groupHeaderArray[0], openReader, (uint)(num1 & 1) > 0U,
+                    blowfishKeys.GroupOneBlowfish[0], blowfishKeys.GroupOneBlowfish[1], num1 == 8 || num1 == 9);
             if (groupHeaderArray[1].decompSize > 0U)
-                numArray1[2] = ExtractGroup(groupHeaderArray[1], openReader, (uint)(num1 & 1) > 0U, blowfishKeys.GroupTwoBlowfish[0], blowfishKeys.GroupTwoBlowfish[1], num1 == 8 || num1 == 9);
+                numArray1[2] = ExtractGroup(groupHeaderArray[1], openReader, (uint)(num1 & 1) > 0U,
+                    blowfishKeys.GroupTwoBlowfish[0], blowfishKeys.GroupTwoBlowfish[1], num1 == 8 || num1 == 9);
 
             return numArray1;
         }
@@ -108,7 +110,10 @@ namespace ZamboniLib.IceFileFormats
         private BlowfishKeys GetBlowfishKeys(byte[] magicNumbers, int compSize)
         {
             BlowfishKeys blowfishKeys = new BlowfishKeys();
-            uint temp_key = (uint)((int)BitConverter.ToUInt32(((IEnumerable<byte>)new Crc32().ComputeHash(magicNumbers, 124, 96)).Reverse().ToArray(), 0) ^ (int)BitConverter.ToUInt32(magicNumbers, 108) ^ compSize ^ 1129510338);
+            uint temp_key = (uint)((int)BitConverter.ToUInt32(((IEnumerable<byte>)
+                new Crc32().ComputeHash(magicNumbers, 124, 96)).Reverse().ToArray(), 0)
+                ^ (int)BitConverter.ToUInt32(magicNumbers, 108) ^ compSize ^ 1129510338);
+
             uint key = GetKey(magicNumbers, temp_key);
             blowfishKeys.GroupOneBlowfish[0] = CalcBlowfishKeys(magicNumbers, key);
             blowfishKeys.GroupOneBlowfish[1] = GetKey(magicNumbers, blowfishKeys.GroupOneBlowfish[0]);
@@ -119,7 +124,7 @@ namespace ZamboniLib.IceFileFormats
             return blowfishKeys;
         }
 
-        private uint GetKey(byte[] keys, uint temp_key)
+        private static uint GetKey(byte[] keys, uint temp_key)
         {
             uint num1 = (uint)(((int)temp_key & byte.MaxValue) + 93 & byte.MaxValue);
             uint num2 = (uint)((int)(temp_key >> 8) + 63 & byte.MaxValue);
@@ -262,7 +267,7 @@ namespace ZamboniLib.IceFileFormats
                 BlewFish blewFish = new BlewFish(blowfishKeys.groupHeadersKey);
                 byte[] block = new byte[48];
                 Array.Copy(headerData, 288, block, 0, 48);
-                Array.Copy(blewFish.encryptBlock(block), 0, outBytes, 288, 48);
+                Array.Copy(blewFish.EncryptBlock(block), 0, outBytes, 288, 48);
             }
             Array.Copy(BitConverter.GetBytes(compSize), 0, outBytes, 28, 4);
             return outBytes;

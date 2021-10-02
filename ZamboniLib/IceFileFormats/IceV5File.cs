@@ -157,7 +157,7 @@ namespace ZamboniLib.IceFileFormats
             uint groupOneTempKey = num << decryptionHeaders[iceType - 5].HeaderRol | num >> 32 - decryptionHeaders[iceType - 5].HeaderRol;
             uint groupTwoTempKey = key2 << decryptionHeaders[iceType - 5].HeaderRol | key2 >> 32 - decryptionHeaders[iceType - 5].HeaderRol;
 
-            byte[] decryptedHeaderData = new BlewFish(key3).decryptBlock(block);
+            byte[] decryptedHeaderData = new BlewFish(key3).DecryptBlock(block);
             groupHeaders = ReadHeaders(decryptedHeaderData);
             inFile.Seek(352L, SeekOrigin.Begin);
 

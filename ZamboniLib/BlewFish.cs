@@ -279,7 +279,7 @@ namespace ZamboniLib
         uint[] P = new uint[18];
         uint[] S = new uint[1024];
 
-        private void goRound(ref uint a, ref uint b, uint index)
+        private void GoRound(ref uint a, ref uint b, uint index)
         {
             b ^= P[index];
             byte[] temp = BitConverter.GetBytes(b);
@@ -289,15 +289,15 @@ namespace ZamboniLib
                 a ^= (((S[temp[3]] + S[256 + temp[2]]) ^ S[512 + temp[1]]) + S[768 + temp[0]]);
         }
 
-        public uint[] encrypt(uint[] source)
+        public uint[] Encrypt(uint[] source)
         {
             uint[] toReturn = { source[0], source[1] };
             uint left = source[0];
             uint right = source[1];
             for (uint i = 0; i < 16; i += 2)
             {
-                goRound(ref right, ref left, i);
-                goRound(ref left, ref right, i + 1);
+                GoRound(ref right, ref left, i);
+                GoRound(ref left, ref right, i + 1);
             }
             left ^= P[16];
             right ^= P[17];
@@ -306,13 +306,13 @@ namespace ZamboniLib
             return toReturn;
         }
 
-        public uint[] encrypt(uint left, uint right)
+        public uint[] Encrypt(uint left, uint right)
         {
             uint[] toReturn = { left, right };
             for (uint i = 0; i < 16; i += 2)
             {
-                goRound(ref right, ref left, i);
-                goRound(ref left, ref right, i + 1);
+                GoRound(ref right, ref left, i);
+                GoRound(ref left, ref right, i + 1);
             }
             left ^= P[16];
             right ^= P[17];
@@ -321,15 +321,15 @@ namespace ZamboniLib
             return toReturn;
         }
 
-        public uint[] decrypt(uint[] source)
+        public uint[] Decrypt(uint[] source)
         {
             uint[] toReturn = { source[0], source[1] };
             uint left = source[0];
             uint right = source[1];
             for (uint i = 17; i > 1; i -= 2)
             {
-                goRound(ref right, ref left, i);
-                goRound(ref left, ref right, i - 1);
+                GoRound(ref right, ref left, i);
+                GoRound(ref left, ref right, i - 1);
             }
             left ^= P[1];
             right ^= P[0];
@@ -338,13 +338,13 @@ namespace ZamboniLib
             return toReturn;
         }
 
-        public uint[] decrypt(uint left, uint right)
+        public uint[] Decrypt(uint left, uint right)
         {
             uint[] toReturn = { left, right };
             for (uint i = 17; i > 1; i -= 2)
             {
-                goRound(ref right, ref left, i);
-                goRound(ref left, ref right, i - 1);
+                GoRound(ref right, ref left, i);
+                GoRound(ref left, ref right, i - 1);
             }
             left ^= P[1];
             right ^= P[0];
@@ -353,7 +353,7 @@ namespace ZamboniLib
             return toReturn;
         }
 
-        public byte[] decryptBlock(byte[] block)
+        public byte[] DecryptBlock(byte[] block)
         {
             byte[] toReturn = new byte[block.Length];
             int size = block.Length;
@@ -362,7 +362,7 @@ namespace ZamboniLib
             {
                 uint left = BitConverter.ToUInt32(block, i);
                 uint right = BitConverter.ToUInt32(block, i + 4);
-                uint[] temp = decrypt(left, right);
+                uint[] temp = Decrypt(left, right);
                 Array.Copy(BitConverter.GetBytes(temp[0]), 0, toReturn, i, 4); //BitConverter.GetBytes(temp[0]).CopyTo(decryptedFiles, i);
                 Array.Copy(BitConverter.GetBytes(temp[1]), 0, toReturn, i + 4, 4);
             }
@@ -371,7 +371,7 @@ namespace ZamboniLib
             return toReturn;
         }
 
-        public byte[] encryptBlock(byte[] block)
+        public byte[] EncryptBlock(byte[] block)
         {
             byte[] toReturn = new byte[block.Length];
             int size = block.Length;
@@ -380,7 +380,7 @@ namespace ZamboniLib
             {
                 uint left = BitConverter.ToUInt32(block, i);
                 uint right = BitConverter.ToUInt32(block, i + 4);
-                uint[] temp = encrypt(left, right);
+                uint[] temp = Encrypt(left, right);
                 Array.Copy(BitConverter.GetBytes(temp[0]), 0, toReturn, i, 4); //BitConverter.GetBytes(temp[0]).CopyTo(decryptedFiles, i);
                 Array.Copy(BitConverter.GetBytes(temp[1]), 0, toReturn, i + 4, 4);
             }
@@ -391,10 +391,10 @@ namespace ZamboniLib
 
         public BlewFish(uint key)
         {
-            setKey(key);
+            SetKey(key);
         }
 
-        public void setKey(uint key)
+        public void SetKey(uint key)
         {
             P = new uint[18];
             S = new uint[1024];
@@ -407,14 +407,14 @@ namespace ZamboniLib
 
             for (int i = 0; i < 18; i += 2)
             {
-                data = encrypt(data);
+                data = Encrypt(data);
                 P[i] = data[0];
                 P[i + 1] = data[1];
             }
 
             for (int i = 0; i < 1024; i += 2)
             {
-                data = encrypt(data);
+                data = Encrypt(data);
                 S[i] = data[0];
                 S[i + 1] = data[1];
             }
